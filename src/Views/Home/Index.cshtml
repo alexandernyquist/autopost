@@ -1,0 +1,219 @@
+@model Autopost.Controllers.ViewModels.HomeIndexViewModel
+@{
+	var publishedPostsToShow = 5;
+}
+
+<h1>Configure feeds</h1>
+
+<a href="#" id="btnAddFeed" data-toggle="modal" data-target="#mdlAddFeed" class="btn btn-info">
+	Add new feed
+</a>
+
+<hr />
+
+@foreach(var feed in Model.Feeds)
+{
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			@feed.FeedUrl
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-6">
+					<h4>Configuration</h4>
+					<div class="alert alert-info">
+						@if(feed.LastFetch.HasValue)
+						{
+							<text>
+								Feed last fetched @feed.LastFetch.
+							</text>
+						}
+						else
+						{
+							<text>
+								Feed has never been fetched.
+							</text>
+						}
+					</div>
+					
+					<a href="@Url.Action("PublishLatest", "Home", new { feedUrl = feed.FeedUrl})" class="btn btn-success @(feed.Targets != null && feed.Targets.Any() ? "" : "disabled")">
+						Publish latest post
+					</a>
+					
+					@if(feed.Targets == null || !feed.Targets.Any()) {
+						<p>
+							<br />
+							<em>
+								At least one target need to be defined.
+							</em>	
+						</p>
+					} else {
+						<span class="help-block">
+							If the latest post is already published, nothing will happen.
+						</span>
+					}
+					
+					<hr />
+					
+					@if(feed.Published.Any()) {
+						<h4>Already published</h4>
+						<ul class="list-group">
+							@foreach(var published in feed.Published.Reverse().Take(publishedPostsToShow))
+							{
+								<li class="list-group-item">
+									@published
+									
+									<a href="@published" class="pull-right" target="_blank">
+										<i class="fa fa-external-link-square"></i>
+									</a>
+								</li>
+							}
+						</ul>
+						
+						@if(feed.Published.Count() > publishedPostsToShow)
+						{
+							<p>
+								And @(feed.Published.Count() - publishedPostsToShow) more..	
+							</p>
+						}
+					}
+					else
+					{
+						<p>
+							No posts has yet been published for this feed.
+						</p>
+					}
+				</div>
+				<div class="col-md-6">
+					<h4>Targets</h4>
+					
+					@if(feed.Targets != null && feed.Targets.Any())
+					{
+						<p>
+							Autopost will post to the following targets:
+						</p>
+						
+						<ul class="list-group">
+							@foreach(var target in feed.Targets) {
+								<li class="list-group-item">
+									<i class="fa fa-@target.Name.ToLower()-square" style="font-size: 26px; color: #3377B4;"></i>
+									@target.Name
+									
+									@if(!string.IsNullOrEmpty(target.AccessToken)) {
+										<a href="#" data-target="@target.Name.ToLower()" data-feed-url="@feed.FeedUrl" class="txtValidateAccessToken btn btn-sm btn-primary pull-right">
+											Validate access token
+										</a>
+									} else {
+										<a href="/Facebook/BeginAuthenticate/?feedUrl=@feed.FeedUrl" class="btn btn-warning btn-sm pull-right">
+											Click to authorize
+										</a>
+									}
+								</li>
+							}
+						</ul>	
+					}
+					else
+					{
+						<div class="alert alert-warning">
+							No target has been configured for this feed.
+						</div>
+						
+						<button id="btnAddTarget" data-feed-url="@feed.FeedUrl" class="btn btn-primary">
+							Add target
+						</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>	
+}
+
+<div class="modal fade" id="mdlAddFeed">
+	@using(Html.BeginForm("AddFeed", "Home", FormMethod.Get)) {
+		<div class="modal-dialog">
+			<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span>&times;</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel">Add new feed</h4>
+			</div>
+			<div class="modal-body">
+				<form id="frmAddFeed">
+					<div class="form-group">
+						<label for="txtFeedUrl">Feed url</label>
+						<input type="text" id="txtFeedUrl" name="feedUrl" class="form-control" placeholder="URL to feed, eg http://nyqui.st/feed/" />	
+					</div>	
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="submit" id="btnAddFeed" class="btn btn-primary">Add feed</button>
+			</div>
+			</div>
+		</div>	
+	}
+</div>
+
+<div class="modal fade" id="mdlAddTarget">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span>&times;</span>
+			</button>
+			<h4 class="modal-title" id="myModalLabel">Add target</h4>
+		</div>
+		<div class="modal-body">
+			<a href="#" id="lnkAddFacebook" title="Add Facebook">
+				<i class="fa fa-facebook-square" style="font-size: 56px; color: #3377B4;"></i>	
+			</a>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			<button type="submit" id="btnAddFeed" class="btn btn-primary">Add feed</button>
+		</div>
+		</div>
+	</div>	
+</div>
+
+@section scripts {
+	<script type="text/javascript">
+		$(function() {
+			$("#btnAddTarget").click(function(e) {
+				e.preventDefault();
+				
+				var self = $(this);
+				var feedUrl = self.attr("data-feed-url");
+				var modal = $("#mdlAddTarget");
+				$("#lnkAddFacebook").attr("href", "/Home/AddTarget?targetName=Facebook&feedUrl=" + feedUrl);
+				
+				modal.modal("show");
+			});
+			
+			$(".txtValidateAccessToken").click(function(e) {
+				e.preventDefault();
+				
+				var self = $(this);
+				var target = self.attr("data-target");
+				
+				$.get("/" + target + "/ValidateAccessToken", {}, function(response) {
+					if(response.success) {
+						if(response.valid) {
+							self.text("Access token is valid");
+							self.removeClass("btn-primary");
+							self.addClass("btn-success");
+						} else {
+							self.text("Access token not valid, click to authorize");
+							self.removeClass("btn-primary");
+							self.addClass("btn-danger");
+							self.attr("href", "/" + target + "/BeginAuthenticate/");
+						}
+					} else {
+						alert("Unknown error");
+					}
+				});
+			});
+		});
+	</script>
+}

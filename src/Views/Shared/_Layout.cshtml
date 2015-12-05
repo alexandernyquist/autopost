@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - Autopost</title>
+        <link rel="stylesheet" href="/assets/bootstrap-css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="navbar-brand">Autopost</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content" style="margin-top: 80px;">
+
+            @RenderBody()
+
+            <hr />
+            <footer>
+                <p>&copy; 2015 - Autopost</p>
+            </footer>
+        </div>
+
+        <script type="text/javascript" src="/assets/jquery/jquery.js"></script>
+        <script type="text/javascript" src="/assets/bootstrap-css/bootstrap.min.js"></script>
+        @RenderSection("scripts", required: false)
+    </body>
+</html>

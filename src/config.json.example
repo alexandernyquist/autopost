@@ -1,0 +1,10 @@
+{
+  "Data": {
+    "KeyValueStorePath": "c:/autopost"
+  },
+  "Facebook": {
+    "AppId": "",
+    "AppSecret": "",
+    "RedirectUrl": "http://localhost:5000/Facebook/Authenticate"
+  }
+}
