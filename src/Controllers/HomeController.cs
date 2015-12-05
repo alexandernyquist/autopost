@@ -111,5 +111,11 @@ namespace Autopost.Controllers
 				}
             }
         }
+		
+		public async Task<IActionResult> Test()
+		{
+			var entries = _rssFeedClient.GetEntries("http://nyqui.st/feed/");
+			return Json(entries);
+		}
     }
 }

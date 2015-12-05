@@ -45,8 +45,9 @@ namespace Autopost
 		{	
 			// TODO: Use grunt tasks to copy into wwwroot
 			// For libraries
+			var baseDir = Directory.GetCurrentDirectory();
 			app.UseStaticFiles(new StaticFileOptions() {
-				FileProvider = new PhysicalFileProvider(Path.Combine(Environment.CurrentDirectory, "lib")),
+				FileProvider = new PhysicalFileProvider(Path.Combine(baseDir, "lib")),
 				RequestPath = new PathString("/assets")
 			});
 			
